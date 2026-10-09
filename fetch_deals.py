@@ -778,12 +778,21 @@ def clean_title(t):
     return t if len(t) >= 12 else orig
 
 
+def is_name_word(code, text):
+    """True if the code also appears in the title as an ordinary word (not right after "code"/"coupon")."""
+    title = text[:200]
+    title = re.sub(r"(?i)(?:code|coupon)s?\s*[:\-]?\s*[\"'“*]?" + re.escape(code), " ", title)
+    return re.search(r"\b%s\b" % re.escape(code), title, re.I) is not None
+
+
 def find_code(text):
     """A checkout code mentioned in the deal text ("promo code SAVE20", "after coupon COUNTDOWN20")."""
     for m in CODE_RE.finditer(text):
         code = m.group(1).strip("-")
         if code in NOT_CODES or not re.search(r"[A-Z]", code) or len(code) < 4:
             continue
+        if not re.search(r"\d", code) and is_name_word(code, text):
+            continue   # a word from the product name ("Glorious ... mouse"), not a code
         if not re.search(r"\d", code) and len(code) < 5:
             continue
         return code
