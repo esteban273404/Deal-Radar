@@ -17,6 +17,9 @@ concurrency:
   group: deal-radar
   cancel-in-progress: false
 
+env:
+  DEAL_RADAR_DATA: cloud   # the cloud keeps its price history in cloud/; the Mac keeps its own in data/
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -34,9 +37,12 @@ jobs:
       # product images are downloaded once and reused between runs
       - uses: actions/cache@v4
         with:
-          path: data/img-cache
+          path: cloud/img-cache
           key: img-${{ github.run_id }}
           restore-keys: img-
+
+      - name: Install image resizer
+        run: pip install --quiet pillow
 
       - name: Find deals
         run: python3 fetch_deals.py
@@ -45,13 +51,13 @@ jobs:
         run: |
           python3 make_share.py
           mkdir -p site
-          { printf '<!doctype html>\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<style>body{margin:0}</style>\n'; cat data/deals-share.html; } > site/index.html
+          { printf '<!doctype html>\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<style>body{margin:0}</style>\n'; cat cloud/deals-share.html; } > site/index.html
 
       - name: Save price history
         run: |
           git config user.name "deal-radar-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/price-history.json data/thread-prices.json data/query-stats.json data/logos
+          git add cloud/price-history.json cloud/thread-prices.json cloud/query-stats.json cloud/logos
           git commit -m "Update deal data" || echo "No changes to save"
           git push
 

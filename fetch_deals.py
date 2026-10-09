@@ -14,6 +14,7 @@ import hashlib
 import html
 import json
 import math
+import os
 import re
 import subprocess
 import sys
@@ -26,7 +27,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 CONFIG = json.loads((ROOT / "config.json").read_text())
-DATA_DIR = ROOT / "data"
+DATA_DIR = ROOT / os.environ.get("DEAL_RADAR_DATA", "data")   # "cloud" on GitHub, "data" on the Mac
 IMG_CACHE = DATA_DIR / "img-cache"
 HISTORY_FILE = DATA_DIR / "price-history.json"
 THREAD_CACHE = DATA_DIR / "thread-prices.json"
@@ -661,6 +662,24 @@ def score(d):
 
 # --------------------------------------------------------------------------- images
 
+def shrink_image(src, dst):
+    """Resize to fit 180px as a JPEG: macOS's built-in sips on the Mac, Pillow in the cloud (GitHub)."""
+    try:
+        if sys.platform == "darwin":
+            r = subprocess.run(["sips", "-Z", "180", "-s", "format", "jpeg", "-s", "formatOptions", "70",
+                                str(src), "--out", str(dst)], capture_output=True)
+            return r.returncode == 0 and dst.exists()
+        from PIL import Image
+        with Image.open(src) as im:
+            im.thumbnail((180, 180))
+            bg = Image.new("RGB", im.size, (255, 255, 255))   # transparent PNGs get a white background
+            bg.paste(im.convert("RGBA"), mask=im.convert("RGBA").split()[-1])
+            bg.save(dst, "JPEG", quality=70)
+        return True
+    except Exception:
+        return False
+
+
 def embed_image(url):
     if not url:
         return None
@@ -673,10 +692,7 @@ def embed_image(url):
         else:
             src = path.with_suffix(".src")
             src.write_bytes(get(url, timeout=15))
-            r = subprocess.run(["sips", "-Z", "180", "-s", "format", "jpeg",
-                                "-s", "formatOptions", "70", str(src), "--out", str(path)],
-                               capture_output=True)
-            if r.returncode != 0 or not path.exists():
+            if not shrink_image(src, path):
                 path.write_bytes(src.read_bytes())
             src.unlink()
             raw = path.read_bytes()

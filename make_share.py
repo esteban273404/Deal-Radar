@@ -2,11 +2,13 @@
 
 Same page, minus the "Update now" button, which only works on this Mac.
 """
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 SRC = ROOT / "deals.html"
-OUT = ROOT / "data" / "deals-share.html"
+DATA = ROOT / os.environ.get("DEAL_RADAR_DATA", "data")
+OUT = DATA / "deals-share.html"
 HIDE = "<style>.refresh { display: none !important; }</style>\n"
 
 html = SRC.read_text()

@@ -1,15 +1,15 @@
-# generated pages and logs (rebuilt every run)
+# The Mac's own working data (price history, caches, watchlist, logs) stays on the Mac
+data/*
+!data/update_section.py
+# cloud/ holds the GitHub runs' price history; only the history files and logos are saved
+cloud/img-cache/
+cloud/deals.json
+cloud/deals-share.html
+cloud/refresh.log
+cloud/.refresh.lock
+cloud/alerted.json
+# generated pages
 deals.html
-data/deals.json
-data/deals-share.html
-data/refresh.log
-data/server.log
-data/.refresh.lock
-data/img-cache/
-data/backup-*/
-# personal to this Mac
-data/watchlist.json
-data/alerted.json
 site/
 __pycache__/
 .DS_Store

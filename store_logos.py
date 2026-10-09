@@ -1,9 +1,9 @@
 """Store logos: one small icon per store, downloaded once into data/logos/ and embedded in the page.
 Uses each store's site icon (favicon) via Google's favicon service."""
-import base64, json, re, subprocess
+import base64, json, os, re, subprocess
 from pathlib import Path
 
-DIR = Path(__file__).resolve().parent / "data" / "logos"
+DIR = Path(__file__).resolve().parent / os.environ.get("DEAL_RADAR_DATA", "data") / "logos"
 DOMAINS = {
     "Amazon": "amazon.com", "Walmart": "walmart.com", "Target": "target.com", "Best Buy": "bestbuy.com",
     "Costco": "costco.com", "Sam's Club": "samsclub.com", "eBay": "ebay.com", "Woot": "woot.com",
