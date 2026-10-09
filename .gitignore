@@ -1,0 +1,16 @@
+# generated pages and logs (rebuilt every run)
+deals.html
+data/deals.json
+data/deals-share.html
+data/refresh.log
+data/server.log
+data/.refresh.lock
+data/img-cache/
+data/backup-*/
+# personal to this Mac
+data/watchlist.json
+data/alerted.json
+site/
+__pycache__/
+.DS_Store
+.claude/

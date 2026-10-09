@@ -1,0 +1,63 @@
+# Runs Deal Radar in GitHub's cloud twice a day and publishes the page to GitHub Pages,
+# so the shared page stays current even when the Mac is asleep or off.
+name: Update Deal Radar
+
+on:
+  schedule:
+    - cron: "5 13 * * *"   # 8:05 AM Central (daylight time); 7:05 AM in winter
+    - cron: "5 23 * * *"   # 6:05 PM Central (daylight time); 5:05 PM in winter
+  workflow_dispatch:       # "Run workflow" button on the Actions tab
+
+permissions:
+  contents: write          # save price history back to the repo
+  pages: write
+  id-token: write
+
+concurrency:
+  group: deal-radar
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # product images are downloaded once and reused between runs
+      - uses: actions/cache@v4
+        with:
+          path: data/img-cache
+          key: img-${{ github.run_id }}
+          restore-keys: img-
+
+      - name: Find deals
+        run: python3 fetch_deals.py
+
+      - name: Build the page
+        run: |
+          python3 make_share.py
+          mkdir -p site
+          { printf '<!doctype html>\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<style>body{margin:0}</style>\n'; cat data/deals-share.html; } > site/index.html
+
+      - name: Save price history
+        run: |
+          git config user.name "deal-radar-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/price-history.json data/thread-prices.json data/query-stats.json data/logos
+          git commit -m "Update deal data" || echo "No changes to save"
+          git push
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
