@@ -426,7 +426,7 @@ const DATA = /*__DEALS_JSON__*/null;
   const upd = data.updated ? new Date(data.updated) : null;
   const tops = deals.filter((d) => d.top_pick).length;
   $("sub").textContent = (upd ? "Updated " + upd.toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) + " · " : "") +
-    deals.length + " deals found · " + tops + " top picks";
+    deals.length + " deals found · " + tops + " top picks · Updates twice a day";
   const failed = data.sources.filter((s) => !s.ok);
   const srcList = data.sources.map((s) => (s.ok ? "✓ " : "✗ ") + s.name + (s.error ? ": " + s.error : "")).join("\n");
   $("status").innerHTML = data.sources.length ? `<span class="src-pill${failed.length ? " err" : ""}" title="${esc(srcList)}"><i class="dot${failed.length ? " err" : ""}"></i>${failed.length
