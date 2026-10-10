@@ -136,7 +136,11 @@
     "sketchbook",
     "washi tape",
     "cricut",
-    "crayola"
+    "crayola",
+    "hobby lobby",
+    "hobby lobby coupon",
+    "joann",
+    "michaels coupon"
   ],
   "_beauty_comment": "Self Care searches: makeup, skincare, fragrance and hair tools from Ulta, Sephora and similar stores (shampoo, deodorant etc. come from home_queries).",
   "beauty_queries": [
@@ -197,6 +201,15 @@
     "La-Z-Boy",
     "Lowe's",
     "Home Depot"
+  ],
+  "_art_store_comment": "Deals from these craft and art stores that don't match another category still go to Art & Stationery.",
+  "art_stores": [
+    "Hobby Lobby",
+    "Michaels",
+    "Blick",
+    "JetPens",
+    "Goulet Pens",
+    "Paper Source"
   ],
   "_outdoor_comment": "Outdoors searches: camping, hiking, bikes, water, fishing and outdoor gear stores.",
   "outdoor_queries": [

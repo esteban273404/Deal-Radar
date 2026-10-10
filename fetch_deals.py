@@ -1219,6 +1219,8 @@ def main():
             cat = "Personal Care"
         if not cat and detect_store(d) in CONFIG.get("home_stores", []):
             cat = "Home & Goods"
+        if not cat and detect_store(d) in CONFIG.get("art_stores", []):
+            cat = "Art Supplies"
         if not cat and d["frontpage"] and d["thumbs"] >= CONFIG.get("home_min_votes", 15):
             cat = "Home & Goods"
         if not cat:
