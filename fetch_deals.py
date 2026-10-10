@@ -215,6 +215,7 @@ STORES = [
     ("Amazon Fresh", r"amazon fresh"), ("Sprouts", r"sprouts farmers"), ("Kroger", r"\bkroger\b"),
     # home retailers
     ("IKEA", r"\bikea\b"), ("The Container Store", r"container store|containerstore"),
+    ("Home Depot", r"home ?depot"), ("Lowe's", r"\blowe'?s\b"),
     ("Nebraska Furniture Mart", r"nebraska furniture( mart)?|\bnfm\b"), ("Wayfair", r"wayfair"),
     ("Ashley", r"ashley (furniture|homestore)|ashleyfurniture"), ("Pottery Barn", r"pottery ?barn"),
     ("West Elm", r"west ?elm"), ("Crate & Barrel", r"crate ?(&|and) ?barrel"), ("Rooms To Go", r"rooms ?to ?go"),
@@ -331,6 +332,13 @@ CATEGORY_RULES = [
     ("Outdoor Gear", r"\b(coolers?|yeti|rtic|igloo|binoculars|rangefinders?|multi-?tools?|pocket ?knife|"
                      r"leatherman|flashlights?|fire ?pits?|solo stove|grills?|griddles?|blackstone|traeger|"
                      r"pellet smoker|smokers?|golf (balls?|clubs?|bags?)|disc golf|pickleball|camp chairs?)\b"),
+    ("Tools & Garden", r"\b(drills?|impact (driver|wrench)|drivers? kit|(circular|miter|table|jig|reciprocating|oscillating|chain) ?saws?|"
+                       r"chainsaws?|sanders?|(?<!coffee )(?<!spice )(?<!burr )(?<!herb )(?<!meat )grinders?|angle grinder|router kit|nail gun|tool (set|kit|box|chest|bag)|toolbox|"
+                       r"socket set|wrench(es| set)?|screwdrivers?|pliers|tape measure|stud finder|work ?bench|shop vac|"
+                       r"wet/dry vac|ladders?|lawn ?mowers?|leaf blowers?|string trimmers?|hedge trimmers?|weed eater|"
+                       r"pressure washers?|garden hose|hose reel|wheelbarrow|snow blowers?|generators?|"
+                       r"dewalt|milwaukee|ryobi|makita|ridgid|craftsman|kobalt|husky|ego power|greenworks|"
+                       r"bosch (drill|tool)|black ?\+? ?decker|worx|toro|stihl)\b"),
     # Self Care and Home & Goods come before apparel, so a "fleece throw blanket" isn't a jacket
     ("Hair Tools", r"hair ?dryer|blow ?dryer|flat ?iron|hair straightener|curling (iron|wand)|airwrap|"
                    r"supersonic|hot (air )?brush|\bairstrait\b"),
@@ -480,6 +488,7 @@ DOMAINS = {"bestbuy": "Best Buy", "walmart": "Walmart", "target": "Target", "gam
            "acmemarkets": "Acme Markets", "shaws": "Shaw's", "wholefoodsmarket": "Whole Foods",
            "sprouts": "Sprouts", "kroger": "Kroger",
            "ikea": "IKEA", "containerstore": "The Container Store",
+           "homedepot": "Home Depot", "lowes": "Lowe's",
            "nfm": "Nebraska Furniture Mart", "wayfair": "Wayfair", "ashleyfurniture": "Ashley", "ashley": "Ashley",
            "potterybarn": "Pottery Barn", "westelm": "West Elm", "crateandbarrel": "Crate & Barrel",
            "roomstogo": "Rooms To Go", "livingspaces": "Living Spaces", "athome": "At Home",
@@ -517,7 +526,7 @@ for _sec, _cats in {
         "Apparel": ["Shoes & Boots", "Clothing", "Jackets & Outerwear", "Hats & Accessories"],
         "Outdoors": ["Camping & Hiking", "Bikes, Water & Snow", "Fishing", "Outdoor Gear"],
         "Self Care": ["Makeup", "Skincare", "Personal Care", "Fragrance", "Hair Tools"],
-        "Home & Goods": ["Household", "Home & Goods"],
+        "Home & Goods": ["Household", "Tools & Garden", "Home & Goods"],
         "Produce & Groceries": ["Produce", "Groceries"]}.items():
     for _c in _cats:
         SECTION_OF[_c] = _sec

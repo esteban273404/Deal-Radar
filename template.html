@@ -398,7 +398,7 @@ const DATA = /*__DEALS_JSON__*/null;
     { name: "Apparel", cats: ["Shoes & Boots", "Clothing", "Jackets & Outerwear", "Hats & Accessories"] },
     { name: "Outdoors", cats: ["Camping & Hiking", "Bikes, Water & Snow", "Fishing", "Outdoor Gear"] },
     { name: "Self Care", cats: ["Makeup", "Skincare", "Personal Care", "Fragrance", "Hair Tools"] },
-    { name: "Home & Goods", cats: ["Household", "Home & Goods"] },
+    { name: "Home & Goods", cats: ["Household", "Tools & Garden", "Home & Goods"] },
     { name: "Produce & Groceries", cats: ["Produce", "Groceries"] },
   ];
   const secOf = (c) => (SECTIONS.find((s) => s.cats.includes(c)) || {}).name;
@@ -636,7 +636,7 @@ const DATA = /*__DEALS_JSON__*/null;
 
   const stores = [...new Set(deals.map((d) => d.store))];
   const preferred = ["Best Buy", "Walmart", "Target", "GameStop", "Nintendo", "LEGO", "Amazon", "Pokémon Center", "Costco", "Sam's Club",
-    "Macy's", "Kohl's", "Ulta", "Sephora", "Nordstrom Rack", "Patagonia", "Levi's", "American Eagle", "Hollister", "Old Navy", "Nike", "Adidas"];
+    "Macy's", "Kohl's", "Home Depot", "Lowe's", "Ulta", "Sephora", "Nordstrom Rack", "Patagonia", "Levi's", "American Eagle", "Hollister", "Old Navy", "Nike", "Adidas"];
   stores.sort((a, b) => {
     const ia = preferred.indexOf(a), ib = preferred.indexOf(b);
     return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b);

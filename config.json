@@ -194,7 +194,9 @@
     "Living Spaces",
     "At Home",
     "Overstock",
-    "La-Z-Boy"
+    "La-Z-Boy",
+    "Lowe's",
+    "Home Depot"
   ],
   "_outdoor_comment": "Outdoors searches: camping, hiking, bikes, water, fishing and outdoor gear stores.",
   "outdoor_queries": [
@@ -283,7 +285,17 @@
     "la-z-boy",
     "furniture sale",
     "sofa",
-    "mattress"
+    "mattress",
+    "lowes",
+    "home depot",
+    "home depot tools",
+    "lowes tools",
+    "dewalt",
+    "milwaukee tools",
+    "ryobi",
+    "craftsman",
+    "lawn mower",
+    "pressure washer"
   ],
   "_store_comment": "Whole-store searches for big-box stores, so their deals in every section show up (not only games and electronics).",
   "store_queries": [
