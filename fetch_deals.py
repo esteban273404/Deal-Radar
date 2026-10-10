@@ -215,6 +215,11 @@ STORES = [
     ("Amazon Fresh", r"amazon fresh"), ("Sprouts", r"sprouts farmers"), ("Kroger", r"\bkroger\b"),
     # home retailers
     ("IKEA", r"\bikea\b"), ("The Container Store", r"container store|containerstore"),
+    ("Nebraska Furniture Mart", r"nebraska furniture( mart)?|\bnfm\b"), ("Wayfair", r"wayfair"),
+    ("Ashley", r"ashley (furniture|homestore)|ashleyfurniture"), ("Pottery Barn", r"pottery ?barn"),
+    ("West Elm", r"west ?elm"), ("Crate & Barrel", r"crate ?(&|and) ?barrel"), ("Rooms To Go", r"rooms ?to ?go"),
+    ("Living Spaces", r"living spaces"), ("At Home", r"\bat home (store|stores)\b|athome\.com"),
+    ("Overstock", r"overstock"), ("La-Z-Boy", r"la-?z-?boy"),
     # outdoor retailers
     ("Bass Pro", r"bass pro"), ("Cabela's", r"cabela'?s"), ("Moosejaw", r"moosejaw"), ("Steep & Cheap", r"steep ?(&|and) ?cheap"),
     ("Sierra", r"sierra trading post|sierra\.com"), ("Decathlon", r"decathlon"), ("Campmor", r"campmor"),
@@ -475,6 +480,10 @@ DOMAINS = {"bestbuy": "Best Buy", "walmart": "Walmart", "target": "Target", "gam
            "acmemarkets": "Acme Markets", "shaws": "Shaw's", "wholefoodsmarket": "Whole Foods",
            "sprouts": "Sprouts", "kroger": "Kroger",
            "ikea": "IKEA", "containerstore": "The Container Store",
+           "nfm": "Nebraska Furniture Mart", "wayfair": "Wayfair", "ashleyfurniture": "Ashley", "ashley": "Ashley",
+           "potterybarn": "Pottery Barn", "westelm": "West Elm", "crateandbarrel": "Crate & Barrel",
+           "roomstogo": "Rooms To Go", "livingspaces": "Living Spaces", "athome": "At Home",
+           "overstock": "Overstock", "lazboy": "La-Z-Boy",
            "basspro": "Bass Pro", "cabelas": "Cabela's", "moosejaw": "Moosejaw", "steepandcheap": "Steep & Cheap",
            "sierra": "Sierra", "decathlon": "Decathlon", "campmor": "Campmor", "yeti": "Yeti", "solostove": "Solo Stove",
            "roddandgunn": "Rodd & Gunn", "booksamillion": "Books-A-Million", "barnesandnoble": "Barnes & Noble",

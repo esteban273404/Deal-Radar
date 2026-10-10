@@ -26,6 +26,10 @@ DOMAINS = {
     "Barnes & Noble": "barnesandnoble.com", "Albertsons": "albertsons.com", "Safeway": "safeway.com",
     "Whole Foods": "wholefoodsmarket.com", "Kroger": "kroger.com", "Lowe's": "lowes.com",
     "Home Depot": "homedepot.com", "Wayfair": "wayfair.com", "Jomashop": "jomashop.com",
+    "Nebraska Furniture Mart": "nfm.com", "Ashley": "ashleyfurniture.com", "Pottery Barn": "potterybarn.com",
+    "West Elm": "westelm.com", "Crate & Barrel": "crateandbarrel.com", "Rooms To Go": "roomstogo.com",
+    "Living Spaces": "livingspaces.com", "At Home": "athome.com", "Overstock": "overstock.com", "La-Z-Boy": "la-z-boy.com",
+    "The Container Store": "containerstore.com", "Zappos": "zappos.com",
 }
 
 

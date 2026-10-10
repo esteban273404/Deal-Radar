@@ -183,7 +183,18 @@
   "_home_store_comment": "Deals from these stores that don't match another category still go to Home & Goods.",
   "home_stores": [
     "IKEA",
-    "The Container Store"
+    "The Container Store",
+    "Nebraska Furniture Mart",
+    "Wayfair",
+    "Ashley",
+    "Pottery Barn",
+    "West Elm",
+    "Crate & Barrel",
+    "Rooms To Go",
+    "Living Spaces",
+    "At Home",
+    "Overstock",
+    "La-Z-Boy"
   ],
   "_outdoor_comment": "Outdoors searches: camping, hiking, bikes, water, fishing and outdoor gear stores.",
   "outdoor_queries": [
@@ -257,7 +268,22 @@
     "container store",
     "ikea",
     "ikea sale",
-    "elfa closet"
+    "elfa closet",
+    "nebraska furniture mart",
+    "nfm",
+    "wayfair",
+    "ashley furniture",
+    "pottery barn",
+    "west elm",
+    "crate and barrel",
+    "rooms to go",
+    "living spaces",
+    "at home store",
+    "overstock",
+    "la-z-boy",
+    "furniture sale",
+    "sofa",
+    "mattress"
   ],
   "_store_comment": "Whole-store searches for big-box stores, so their deals in every section show up (not only games and electronics).",
   "store_queries": [
