@@ -100,10 +100,14 @@ form.add input { background: var(--surface-2); border: 1px solid var(--line); bo
 .sec { flex: none; border: 0; background: none; padding: 6px 0 9px; margin-bottom: -1px; border-bottom: 3px solid transparent; cursor: pointer; font-family: var(--f-section); font-stretch: var(--section-stretch); font-weight: 700; font-size: 16px; letter-spacing: -0.005em; color: var(--muted); display: inline-flex; gap: 8px; align-items: center; }
 .sec .num { font-size: 12px; font-weight: 600; }
 /* solid color tiles so each section reads at a glance; the selected one gets a ring */
-.tab-ico { flex: none; width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--c); color: #fff; box-shadow: 0 2px 6px -2px color-mix(in srgb, var(--c) 70%, transparent); transition: transform .15s, box-shadow .15s; }
+.tab-ico, .block-icon { background: linear-gradient(165deg, color-mix(in srgb, var(--c) 72%, #fff) 0%, var(--c) 52%, color-mix(in srgb, var(--c) 82%, #000) 100%); color: #fff; }
+.tab-ico { flex: none; width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 2px 6px -2px color-mix(in srgb, var(--c) 70%, transparent); transition: transform .15s, box-shadow .15s; }
+/* two-tone icons: a soft white fill behind the outline, solid dots for small details */
+.ico .f { fill: currentColor; fill-opacity: .24; }
+.ico .s { fill: currentColor; stroke: none; }
 .tab-ico .ico { width: 22px; height: 22px; stroke-width: 2.2; }
-.sec:hover .tab-ico { transform: translateY(-1px); box-shadow: 0 4px 10px -3px color-mix(in srgb, var(--c) 80%, transparent); }
-.sec[aria-pressed="true"] .tab-ico { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--c); }
+.sec:hover .tab-ico { transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 4px 10px -3px color-mix(in srgb, var(--c) 80%, transparent); }
+.sec[aria-pressed="true"] .tab-ico { box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 0 0 2px var(--bg), 0 0 0 4px var(--c); }
 .sec:hover { color: var(--ink); }
 .sec[aria-pressed="true"] { color: var(--ink); }
 .cats { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
@@ -127,7 +131,7 @@ form.add input { background: var(--surface-2); border: 1px solid var(--line); bo
 .block-title { font-family: var(--f-section); font-stretch: var(--section-stretch); font-weight: 800; font-size: clamp(22px, 2.4vw, 27px); letter-spacing: -0.012em; line-height: 1.05; color: var(--ink); text-transform: none; text-wrap: balance; margin: 0; }
 .block-meta { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
 .block-name { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.block-icon { flex: none; width: 58px; height: 58px; border-radius: 16px; display: grid; place-items: center; background: var(--c); color: #fff; box-shadow: 0 6px 16px -8px color-mix(in srgb, var(--c) 85%, transparent); }
+.block-icon { flex: none; width: 58px; height: 58px; border-radius: 16px; display: grid; place-items: center; box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 6px 16px -8px color-mix(in srgb, var(--c) 85%, transparent); }
 .block-icon .ico { width: 32px; height: 32px; stroke-width: 2.2; }
 .see-all { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 7px 12px; font-weight: 650; font-size: 13.5px; cursor: pointer; white-space: nowrap; }
 .see-all:hover { border-color: var(--ink); }
@@ -370,17 +374,17 @@ const DATA = /*__DEALS_JSON__*/null;
     return Math.round(h / 24) + "d ago";
   }
   // line icons for the section tabs and headings (24px grid, drawn with currentColor)
-  const ICONS = {
-    "All": '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
-    "Toys & Games": '<path d="M6 11h4M8 9v4"/><circle cx="15" cy="12" r="1"/><circle cx="18" cy="10" r="1"/><path d="M17.3 5H6.7a4 4 0 0 0-3.96 3.43L2 14.5a3 3 0 0 0 5.2 2.1L9 15h6l1.8 1.6a3 3 0 0 0 5.2-2.1l-.74-6.07A4 4 0 0 0 17.3 5z"/>',
-    "Electronics": '<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
-    "Books & Media": '<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>',
-    "Art & Stationery": '<circle cx="13.5" cy="6.5" r="1.3"/><circle cx="17.5" cy="10.5" r="1.3"/><circle cx="8.5" cy="7.5" r="1.3"/><circle cx="6.5" cy="12.5" r="1.3"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.84-.44-1.13-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.56-2.5 5.56-5.55C21.97 6.01 17.46 2 12 2z"/>',
-    "Apparel": '<path d="M20.4 6.6 16 4a4 4 0 0 1-8 0L3.6 6.6a1 1 0 0 0-.5 1.2l1.2 3.4a1 1 0 0 0 1.2.6L7 11.3V20a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-8.7l1.5.5a1 1 0 0 0 1.2-.6l1.2-3.4a1 1 0 0 0-.5-1.2z"/>',
-    "Outdoors": '<path d="m8 3 4 8 5-5 5 15H2L8 3z"/>',
-    "Self Care": '<path d="M10 2.5h4M12 2.5V5M9.5 5h5v3h-5z"/><path d="M8 8h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"/><path d="M9.5 14h5"/>',
-    "Produce & Groceries": '<path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06z"/><path d="M10 2c1 .5 2 2 2 5"/>',
-    "Home & Goods": '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9"/>',
+  const ICONS = {   // .f = soft two-tone fill behind the outline, .s = solid detail
+    "All": '<rect class="f" x="3" y="3" width="7" height="7" rx="1.8"/><rect x="14" y="3" width="7" height="7" rx="1.8"/><rect x="3" y="14" width="7" height="7" rx="1.8"/><rect class="f" x="14" y="14" width="7" height="7" rx="1.8"/>',
+    "Toys & Games": '<path class="f" d="M17.3 5H6.7a4 4 0 0 0-3.96 3.43L2 14.5a3 3 0 0 0 5.2 2.1L9 15h6l1.8 1.6a3 3 0 0 0 5.2-2.1l-.74-6.07A4 4 0 0 0 17.3 5z"/><path d="M6 11h4M8 9v4"/><circle class="s" cx="15" cy="12" r="1.2"/><circle class="s" cx="18" cy="9.8" r="1.2"/>',
+    "Electronics": '<rect class="f" x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M6 8.5 9 7.5" opacity=".7"/>',
+    "Books & Media": '<path class="f" d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path class="f" d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>',
+    "Art & Stationery": '<path class="f" d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.84-.44-1.13-.29-.29-.44-.65-.44-1.13a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.56-2.5 5.56-5.55C21.97 6.01 17.46 2 12 2z"/><circle class="s" cx="13.5" cy="6.5" r="1.5"/><circle class="s" cx="17.5" cy="10.5" r="1.5"/><circle class="s" cx="8.5" cy="7.5" r="1.5"/><circle class="s" cx="6.5" cy="12.5" r="1.5"/>',
+    "Apparel": '<path class="f" d="M20.4 6.6 16 4a4 4 0 0 1-8 0L3.6 6.6a1 1 0 0 0-.5 1.2l1.2 3.4a1 1 0 0 0 1.2.6L7 11.3V20a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-8.7l1.5.5a1 1 0 0 0 1.2-.6l1.2-3.4a1 1 0 0 0-.5-1.2z"/>',
+    "Outdoors": '<circle class="s" cx="18.5" cy="5" r="2"/><path class="f" d="m8 6 4 7 3-3 7 11H2L8 6z"/>',
+    "Self Care": '<path d="M10 2.5h4M12 2.5V5"/><path class="f" d="M9.5 5h5v3h-5z"/><path class="f" d="M8 8h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"/><path d="M9.5 14h5"/>',
+    "Home & Goods": '<path class="f" d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5L12 3.6z"/><path d="M3 10.5 12 3l9 7.5"/>',
+    "Produce & Groceries": '<path class="f" d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06z"/><path d="M12 7c0-2 .5-3.5 1.5-4.5"/><path class="s" d="M13.2 4.6c1.4-1.7 3.3-2.1 4.8-1.6-.5 1.7-2.4 2.8-4.8 1.6z"/>',
   };
   // one color per section, used for its icon tile, active tab and heading rule
   const COLORS = { "All": "#334155", "Toys & Games": "#2563eb", "Electronics": "#7c3aed", "Books & Media": "#d97706",
