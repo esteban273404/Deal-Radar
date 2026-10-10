@@ -3,9 +3,13 @@
 name: Update Deal Radar
 
 on:
+  # GitHub can start scheduled runs late or skip one when it's busy, so each update has a backup
+  # time; odd minutes avoid the top-of-the-hour rush. Times are UTC (Central daylight time shown).
   schedule:
-    - cron: "5 13 * * *"   # 8:05 AM Central (daylight time); 7:05 AM in winter
-    - cron: "5 23 * * *"   # 6:05 PM Central (daylight time); 5:05 PM in winter
+    - cron: "12 13 * * *"   # 8:12 AM Central (7:12 AM in winter)
+    - cron: "47 13 * * *"   # 8:47 AM backup
+    - cron: "12 23 * * *"   # 6:12 PM Central (5:12 PM in winter)
+    - cron: "47 23 * * *"   # 6:47 PM backup
   workflow_dispatch:       # "Run workflow" button on the Actions tab
 
 permissions:
