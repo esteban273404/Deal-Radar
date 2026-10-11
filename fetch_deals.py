@@ -383,7 +383,9 @@ CATEGORY_RULES = [
                       r"samba|gazelle|spezial|stan smith|campus 00s|pegasus|cloudmonster|gel-\w+)\b"),
     ("Jackets & Outerwear", r"\b(jackets?|coats?|parkas?|puffers?|fleece|vests?|windbreakers?|anoraks?|"
                             r"rain ?shell|softshell|nano puff|down sweater|better sweater)\b"),
-    ("Hats & Accessories", r"\b(hats?|caps?|beanies?|gloves|mittens|scarf|scarves|belts?|wallets?|"
+    ("Hats & Accessories", r"\b(watch(es)?(?! dogs)|wristwatch(es)?|casio|g-shock|timex|seiko|citizen eco|fossil|"
+                           r"invicta|bulova|orient (watch|bambino|kamasu)|"
+                           r"hats?|caps?|beanies?|gloves|mittens|scarf|scarves|belts?|wallets?|"
                            r"sunglasses|socks|backpacks?|duffel|tote bag)\b"),
     ("Clothing", r"\b(shirts?|t-?shirts?|tees?|polos?|shorts|pants|jeans|joggers|leggings|hoodies?|"
                  r"sweatshirts?|sweaters?|cardigans?|flannels?|chinos|dress(es)?|skirts?|underwear|boxers?|"
