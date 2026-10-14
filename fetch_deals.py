@@ -593,9 +593,9 @@ NOT_PRODUCE_RE = re.compile(r"\b(chips|oils?|bars?|snacks?|gumm(y|ies)|vitamins?
                             r"seasoning|canned|frozen|puree|baby food|pouch(es)?)\b", re.I)
 
 
-# clothing and shoe words: art and stationery rules skip these titles, so a color name like
+# clothing and shoe words: art, stationery and toy rules skip these titles, so a color name like
 # "Mineral Clay" socks or "Tech Ink" sneakers doesn't make them art supplies
-ART_CATS = {"Art Supplies", "Notebooks & Planners", "Pens & Writing"}
+ART_CATS = {"Art Supplies", "Notebooks & Planners", "Pens & Writing", "Toys"}   # also toys: "plush" socks
 WEARABLE_RE = re.compile(r"\b(socks?|shoes|sneakers|boots|slides|sandals|shirts?|t-?shirts?|tees|polos?|hoodies?|"
                          r"sweatshirts?|sweaters?|jackets?|coats?|pants|jeans|joggers|leggings|shorts|dress(es)?|"
                          r"skirts?|apparel|clothing|underwear)\b", re.I)
