@@ -492,7 +492,11 @@
     "domino's",
     "papa john's",
     "pizza hut",
-    "krispy kreme"
+    "krispy kreme",
+    "sweepstakes",
+    "giveaway",
+    "walgreens photo",
+    "cvs photo"
   ],
   "_msrp_comment": "US MSRP for common sealed Pokémon TCG products. Used to flag 'At or below MSRP' vs reseller markups. Double-check these when new sets launch.",
   "pokemon_msrp": {

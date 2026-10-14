@@ -593,8 +593,18 @@ NOT_PRODUCE_RE = re.compile(r"\b(chips|oils?|bars?|snacks?|gumm(y|ies)|vitamins?
                             r"seasoning|canned|frozen|puree|baby food|pouch(es)?)\b", re.I)
 
 
+# clothing and shoe words: art and stationery rules skip these titles, so a color name like
+# "Mineral Clay" socks or "Tech Ink" sneakers doesn't make them art supplies
+ART_CATS = {"Art Supplies", "Notebooks & Planners", "Pens & Writing"}
+WEARABLE_RE = re.compile(r"\b(socks?|shoes|sneakers|boots|slides|sandals|shirts?|t-?shirts?|tees|polos?|hoodies?|"
+                         r"sweatshirts?|sweaters?|jackets?|coats?|pants|jeans|joggers|leggings|shorts|dress(es)?|"
+                         r"skirts?|apparel|clothing|underwear)\b", re.I)
+
+
 def detect_category(title):
     for name, pat in CATEGORY_RULES:
+        if name in ART_CATS and WEARABLE_RE.search(title):
+            continue
         if name == "Produce":
             plain = re.sub(r"\([^)]*\)", " ", title)   # "(Avocado)" is usually a color
             if re.search(pat, plain, re.I) and not NOT_PRODUCE_RE.search(plain):
