@@ -48,7 +48,9 @@ NS = {
 
 def get(url, timeout=25):
     # Use the system curl: it trusts macOS certificates, which python.org builds often don't.
-    r = subprocess.run(["curl", "-sSL", "--fail", "--max-time", str(timeout), "-A", UA, url],
+    r = subprocess.run(["curl", "-sSL", "--fail", "--compressed", "--max-time", str(timeout), "-A", UA,
+                        "-H", "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                        "-H", "Accept-Language: en-US,en;q=0.9", url],
                        capture_output=True)
     if r.returncode != 0:
         raise RuntimeError(r.stderr.decode(errors="replace").strip() or "curl failed")
@@ -847,7 +849,8 @@ def find_code(text):
 
 # --------------------------------------------------------------------------- parallel fetching
 
-WORKERS = CONFIG.get("parallel_requests", 4)   # requests in flight at once; gentle enough for Slickdeals
+# requests in flight at once; the cloud uses fewer (DEAL_RADAR_WORKERS=2) so Slickdeals doesn't flag it
+WORKERS = int(os.environ.get("DEAL_RADAR_WORKERS") or CONFIG.get("parallel_requests", 4))
 
 
 def search_all(queries):
@@ -1198,6 +1201,12 @@ def main():
             sources.append({"name": name, "ok": True})
         except Exception as e:
             sources.append({"name": name, "ok": False, "error": str(e)})
+
+    sd_sources = [x for x in sources if x["name"].startswith(("Slickdeals", "Store, apparel"))]
+    if sd_sources and not any(x["ok"] for x in sd_sources):
+        bg.shutdown(wait=False, cancel_futures=True)
+        raise SystemExit("Slickdeals refused every request (%s). Keeping the last good page instead of "
+                         "publishing one without its deals." % (sd_sources[0].get("error") or "blocked"))
 
     items, srcs = reddit_job.result()
     bg.shutdown()

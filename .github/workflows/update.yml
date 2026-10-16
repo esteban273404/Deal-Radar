@@ -23,6 +23,7 @@ concurrency:
 
 env:
   DEAL_RADAR_DATA: cloud   # the cloud keeps its price history in cloud/; the Mac keeps its own in data/
+  DEAL_RADAR_WORKERS: 2    # fewer requests at once from the cloud, so Slickdeals doesn't block it
 
 jobs:
   update:
