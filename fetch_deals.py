@@ -129,6 +129,8 @@ def fetch_rss(name, url):
         title = html.unescape(it.findtext("title") or "").strip()
         if not re.search(r"\$\s?\d", title):
             continue
+        if re.search(r"\b(recap|roundup|best of|this week|weekly|this weekend|top deals|deals?:)\b", title, re.I):
+            continue
         body = it.findtext("content:encoded", default="", namespaces=NS) or it.findtext("description") or ""
         img = re.search(r'<img[^>]+src="([^"]+)"', body)
         pub = it.findtext("pubDate")
@@ -669,6 +671,31 @@ def msrp_check(d):
 
 # --------------------------------------------------------------------------- score
 
+BRAND_RE = re.compile(r"(?<![\w])(" + "|".join(re.escape(b) for b in sorted(CONFIG.get("known_brands", []), key=len, reverse=True))
+                      + r")(?![\w])", re.I) if CONFIG.get("known_brands") else None
+NOT_BRANDS = {"LEGO", "HDMI", "USB", "LED", "OLED", "QLED", "SSD", "NVME", "RGB", "WIFI", "AMOLED", "PACK", "PRIME", "NEW", "HOT",
+              "FREE", "SALE", "MEN", "WOMEN", "KIDS", "XL", "XXL", "YMMV"}
+
+
+def brand_check(title):
+    """("name", brand) for a recognized brand; ("unknown", word) for a made-up-looking marketplace label such as
+    "KIRUNDO", "BTFBM" or "wegear" at the start of the title; (None, None) when it can't tell."""
+    m = BRAND_RE.search(title) if BRAND_RE else None
+    if m:
+        return "name", m.group(1)
+    t = re.sub(r"^(\s*(\[[^\]]*\]|\$[\d.,]+\*?\s*[|:-]|\d+[\w.]*[- ](pk|pack|ct|count|pcs?|piece|pairs?|oz|ft|in|lb|qt|gal)\b\.?))+",
+               "", title, flags=re.I).strip()
+    w = re.match(r"([A-Za-z][A-Za-z0-9]{3,})\b", t)
+    if not w:
+        return None, None
+    word = w.group(1)
+    if word.upper() in NOT_BRANDS:
+        return None, None
+    if (word.isupper() and len(word) >= 4) or (word[0].islower() and any(ch.isupper() for ch in word[1:])) or word.islower():
+        return "unknown", word
+    return None, None
+
+
 def score(d):
     s = 0.0
     s += min(40, 10 * math.log2(1 + max(d["thumbs"], 0)))
@@ -690,6 +717,18 @@ def score(d):
         s += 8
     if d["thumbs"] < 0:
         s -= 15
+    # real interest: how many people looked at and talked about the deal on Slickdeals
+    if d.get("views"):
+        s += min(10, 4 * math.log2(1 + d["views"] / 2000))
+    if d.get("comments"):
+        s += min(5, 2 * math.log2(1 + d["comments"]))
+    if d.get("fire"):
+        s += 8
+    kind, _ = brand_check(d["title"])
+    if kind == "name":
+        s += 4
+    elif kind == "unknown":
+        s -= 8
     return max(0, min(100, round(s)))
 
 # --------------------------------------------------------------------------- images
@@ -883,9 +922,30 @@ def read_thread(link):
     lp = re.search(r'"listPrice":"?([\d.]+)', page)
     fp = re.search(r'"finalPrice":"?([\d.]+)', page)
     ex = re.search(r'"isExpiredDeal":"(Yes|No)"', page)
-    return {"list": float(lp.group(1)) if lp else None, "final": float(fp.group(1)) if fp else None,
-            "keycard": bool(KEYCARD_RE.search(page)),
-            "expired": ex is not None and ex.group(1) == "Yes", "checked": NOW.isoformat()}
+    return dict({"list": float(lp.group(1)) if lp else None, "final": float(fp.group(1)) if fp else None,
+                 "keycard": bool(KEYCARD_RE.search(page)),
+                 "expired": ex is not None and ex.group(1) == "Yes", "checked": NOW.isoformat()},
+                **thread_stats(page))
+
+
+def thread_stats(page):
+    """How much interest a Slickdeals deal is getting: page views, comments, Slickdeals' own deal score and
+    its "fire deal" flag. The page keeps these in a compact list (__NUXT_DATA__) where fields point to entries."""
+    m = re.search(r'<script[^>]*id="__NUXT_DATA__"[^>]*>(.*?)</script>', page, re.S)
+    if not m:
+        return {}
+    try:
+        arr = json.loads(m.group(1))
+    except ValueError:
+        return {}
+    val = lambda i: arr[i] if isinstance(i, int) and 0 <= i < len(arr) else None
+    for el in arr:
+        if isinstance(el, dict) and "views" in el and "dealScore" in el:
+            num = lambda k: val(el.get(k)) if isinstance(val(el.get(k)), (int, float)) else None
+            fire = val(el.get("isFireDeal")) if "isFireDeal" in el else None
+            return {"views": num("views"), "comments": num("comments"), "sd_score": num("dealScore"),
+                    "fire": fire is True}
+    return {}
 
 
 def prefetch_threads(deals, cache, today, need):
@@ -918,6 +978,9 @@ def prefetch_threads(deals, cache, today, need):
 def apply_list_price(d, c):
     if not c:
         return
+    for k in ("views", "comments", "sd_score", "fire"):
+        if c.get(k) is not None:
+            d[k] = c[k]
     d["keycard"] = c.get("keycard", False)
     if d["price"] is None and c["final"]:
         d["price"] = c["final"]
@@ -1306,7 +1369,7 @@ def main():
     cache = json.loads(THREAD_CACHE.read_text()) if THREAD_CACHE.exists() else {}
     t0 = time.time()
     fetched = prefetch_threads(deals[: CONFIG["max_deals_in_page"]], cache, today,
-                               lambda d, c: c is None or (is_switch2_game(d) and "keycard" not in c))
+                               lambda d, c: c is None or "views" not in c or (is_switch2_game(d) and "keycard" not in c))
     for d in deals[: CONFIG["max_deals_in_page"]]:
         c, _ = thread_info(d, cache, today)
         apply_list_price(d, c)
@@ -1403,13 +1466,29 @@ def main():
             d.pop(k, None)
         d["desc"] = re.sub(r"\s+", " ", d["desc"]).strip()[:220]
 
-    # top picks: the best few in each section, above a minimum score (deals are already sorted by score)
+    # interest stats (views, comments) for every deal that made the page, then re-score with them
+    got = prefetch_threads(deals, cache, today, lambda d, c: c is None or "views" not in c)
+    for d in deals:
+        m = re.search(r"/f/(\d+)", d["link"])
+        c = cache.get(m.group(1)) if m else None
+        for k in ("views", "comments", "sd_score", "fire"):
+            if c and c.get(k) is not None:
+                d[k] = c[k]
+        d["score"] = score(d)
+    THREAD_CACHE.write_text(json.dumps(cache))
+    print("Read %d more deal pages for views and comments" % got)
+
+    # top picks: the best few in each section, above a minimum score
+    deals.sort(key=lambda x: -x["score"])
     rank = {}
     for d in sorted(deals, key=lambda x: -x["score"]):
         sec = SECTION_OF.get(d["category"], d["category"])
         rank[sec] = rank.get(sec, 0) + 1
-        d["top_pick"] = (d["score"] >= CONFIG["top_pick_min_score"]
+        interest = (d.get("views") is None or d["views"] >= CONFIG.get("top_pick_min_views", 2500) or d["thumbs"] >= 20
+                    or d.get("fire") or d["frontpage"] or not d["source"] == "Slickdeals")
+        d["top_pick"] = (d["score"] >= CONFIG["top_pick_min_score"] and bool(interest)
                          and rank[sec] <= CONFIG.get("top_picks_per_section", 24))
+        d["brand_kind"], d["brand"] = brand_check(d["title"])
 
     # prune history older than 120 days
     cutoff = NOW.toordinal() - 120

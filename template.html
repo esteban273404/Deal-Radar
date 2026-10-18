@@ -180,6 +180,8 @@ form.add input { background: var(--surface-2); border: 1px solid var(--line); bo
 .code-chip:hover { border-style: solid; }
 .code-chip.copied .code-act { background: var(--ink); }
 .badge.clip { background: var(--warn-bg); color: var(--warn); }
+.badge.pop { background: #fff1e6; color: #c2410c; }
+.badge.brand { background: #eef2ff; color: #3730a3; }
 .badge { font-size: 11.5px; font-weight: 650; padding: 2px 7px; border-radius: 5px; background: var(--surface-2); color: var(--muted); }
 .badge.good { background: var(--good-bg); color: var(--good); }
 .badge.warn { background: var(--warn-bg); color: var(--warn); }
@@ -187,8 +189,9 @@ form.add input { background: var(--surface-2); border: 1px solid var(--line); bo
 .badge.watch { background: var(--watch-bg); color: var(--watch); }
 .compare { font-size: 12.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 2px 10px; }
 .compare a { color: var(--muted); }
-.foot { display: flex; align-items: center; gap: 10px; margin-top: auto; padding-top: 8px; border-top: 1px dashed var(--line); }
-.foot .votes { font-size: 12px; color: var(--muted); }
+.foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: auto; padding-top: 8px; border-top: 1px dashed var(--line); }
+/* votes · views · comments stays on one line; on narrow cards "View deal" drops below instead of squeezing it */
+.foot .votes { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
 .foot .go { margin-left: auto; }
 .score { display: inline-flex; align-items: baseline; gap: 5px; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); font-family: var(--f-num); font-weight: 600; font-size: 12.5px; color: var(--ink); }
 .score small { font-family: var(--f-body); font-weight: 600; font-size: 10.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
@@ -351,7 +354,7 @@ form.add input { background: var(--surface-2); border: 1px solid var(--line); bo
 
   <details class="how">
     <summary>How deals are picked</summary>
-    <p><strong>Deal score (0–100)</strong> adds up community votes on Slickdeals, the percent off the regular price, how recent the deal is, and whether it made the Slickdeals front page. Pokémon TCG products get a bonus at or below MSRP and a penalty well above it. Deals at the lowest price Deal Radar has recorded get a bonus too. <strong>Top picks</strong> are the best 24 deals in each section, and only those scoring 55 or higher. Each section keeps its 60 best deals; turn off “Top picks only” to see them all. Deals scoring above 75 get a yellow border and a “Hot deal” tag.</p>
+    <p><strong>Deal score (0–100)</strong> adds up community votes on Slickdeals, how many people viewed and commented on the deal, the percent off the regular price, how recent it is, and whether it made the Slickdeals front page or is a Slickdeals “fire deal”. Name brands get a small boost; unknown marketplace labels rank a little lower. <strong>Top picks</strong> also need real interest (lots of views, votes or a curated source), so a big discount on something nobody wants won’t make the cut. Pokémon TCG products get a bonus at or below MSRP and a penalty well above it. Deals at the lowest price Deal Radar has recorded get a bonus too. <strong>Top picks</strong> are the best 24 deals in each section, and only those scoring 55 or higher. Each section keeps its 60 best deals; turn off “Top picks only” to see them all. Deals scoring above 75 get a yellow border and a “Hot deal” tag.</p>
     <p>Pre-owned, open-box and digital-code deals are left out. Refurbished items are shown only for consoles and are labeled. Prices change fast and stock runs out, so check the price on the store's page before you buy.</p>
     <p>Sources: Slickdeals search feeds (including searches for popular clothing and shoe stores like Macy's, Patagonia, Levi's, American Eagle and Hollister), and Reddit deal communities, including r/frugalmalefashion and r/frugalfemalefashion, when Reddit allows the request. Self Care deals (makeup, skincare, shampoo, deodorant, fragrance) come from searches for Ulta, Sephora, Dermstore, Bath &amp; Body Works and popular makeup, skincare and fragrance brands. Front-page Slickdeals deals that don't fit another section appear under Home &amp; Goods. Outdoors deals come from searches for REI, Bass Pro, Cabela's, Backcountry, Yeti and camping, hiking, bike, water and fishing gear. Books &amp; Media covers physical books, manga, anime, movies and music only; eBooks and audiobooks are left out. Produce &amp; Groceries covers fresh produce and packaged food and drink from Albertsons, Safeway, Vons, Whole Foods, Amazon, Costco and other grocers. Restaurant, delivery, ticket, phone-plan and firearm deals are left out. Pokémon Center drops come from Reddit restock-monitor posts that link to pokemoncenter.com, because the store blocks automated checks. The list refreshes once a day.</p>
   </details>
@@ -565,6 +568,9 @@ const DATA = /*__DEALS_JSON__*/null;
     const hits = watchHits(d).length;
     const b = [];
     if (hits) b.push(`<span class="badge watch">On your watchlist</span>`);
+    // real interest: Slickdeals' fire flag, or lots of people looking / voting
+    if (d.fire || (d.views || 0) >= 8000 || d.thumbs >= 50) b.push(`<span class="badge pop">🔥 Popular</span>`);
+    if (d.brand_kind === "name") b.push(`<span class="badge brand" title="${esc(d.brand)}">Name brand</span>`);
     if (d.lowest_seen) b.push(`<span class="badge good">Lowest price we've seen</span>`);
     if (d.msrp && d.price != null) {
       if (d.price <= d.msrp.msrp * 1.001) b.push(`<span class="badge good">At or below MSRP (${fmt(d.msrp.msrp)})</span>`);
@@ -578,7 +584,10 @@ const DATA = /*__DEALS_JSON__*/null;
     const cmp = (d.compare || []).length
       ? `<div class="compare">Also: ${d.compare.map((c) => `<a href="${esc(c.link)}" target="_blank" rel="noopener">${esc(c.store)} <span class="num">${fmt(c.price)}</span></a>`).join(" ")}</div>` : "";
     const img = d.image ? `<img src="${d.image}" alt="" loading="lazy">` : `<span class="ph">${esc(d.store)}</span>`;
-    const votes = d.source === "Slickdeals" ? `${d.thumbs >= 0 ? "+" : ""}${d.thumbs} votes` : esc(d.source);
+    const k = (n) => n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "") + "K" : String(n);
+    const votes = d.source === "Slickdeals"
+      ? [`${d.thumbs >= 0 ? "+" : ""}${d.thumbs} votes`, d.views ? `${k(d.views)} views` : "", d.comments ? `${k(d.comments)} comments` : ""].filter(Boolean).join(" · ")
+      : esc(d.source);
     const hot = d.score > 75;
     // red (weak) -> green (great); no yellow, which belongs to the "Hot deal" tag
     const tier = d.score >= 75 ? " s5" : d.score >= 65 ? " s4" : d.score >= 55 ? " s3" : d.score >= 40 ? " s2" : " s1";
