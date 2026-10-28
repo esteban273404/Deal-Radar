@@ -38,6 +38,7 @@ OUT_HTML = ROOT / "deals.html"
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/128.0 Safari/537.36")
 NOW = datetime.now(timezone.utc)
+RUN_STARTED = time.time()
 
 NS = {
     "content": "http://purl.org/rss/1.0/modules/content/",
@@ -1270,6 +1271,14 @@ def main():
         bg.shutdown(wait=False, cancel_futures=True)
         raise SystemExit("Slickdeals refused every request (%s). Keeping the last good page instead of "
                          "publishing one without its deals." % (sd_sources[0].get("error") or "blocked"))
+
+    # the Mac slept partway through (the searches normally take ~2 minutes): the results are stale and the
+    # run would end up labelled with yesterday's time, so start over once with a fresh clock
+    if time.time() - RUN_STARTED > 40 * 60 and not os.environ.get("DEAL_RADAR_RESTARTED"):
+        print("This update was interrupted (the Mac probably slept). Starting over.")
+        sys.stdout.flush()
+        os.environ["DEAL_RADAR_RESTARTED"] = "1"
+        os.execv(sys.executable, [sys.executable, "-u"] + sys.argv)
 
     items, srcs = reddit_job.result()
     bg.shutdown()
