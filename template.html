@@ -409,7 +409,8 @@ const DATA = /*__DEALS_JSON__*/null;
   const secOf = (c) => (SECTIONS.find((s) => s.cats.includes(c)) || {}).name;
   // Black Friday: deals from every section that say Black Friday / pre-Black Friday; only in November through Cyber Monday
   const BF = { name: "Black Friday", bf: true, cats: SECTIONS.flatMap((s) => s.cats) };
-  const picked = (d, s) => !state.topOnly || d.top_pick || (!!(s && s.bf) && d.bf_pick);
+  // the Black Friday section is already a short list, so it keeps every decent deal (score 45+) under "Top picks only"
+  const picked = (d, s) => !state.topOnly || d.top_pick || (!!(s && s.bf) && (d.bf_pick || d.score >= 45));
   const inSec = (s, d) => (s.bf ? d.bf && !!secOf(d.category) : s.cats.includes(d.category)) && picked(d, s);
 
   const data = DATA || { updated: null, sources: [], deals: [], default_watchlist: [] };
