@@ -839,6 +839,9 @@ CODE_RE = re.compile(r"(?i:(?:promo|coupon|discount|offer|checkout|use|with|appl
 NOT_CODES = {"CODE", "FREE", "SHIPPING", "PRIME", "AMAZON", "NONE", "BELOW", "OFF", "SAVE", "DEAL", "PRICE",
              "CART", "ITEM", "ITEMS", "NEEDED", "REQUIRED", "APPLIED", "AUTO", "AUTOMATICALLY", "HERE", "PAGE",
              "VIA", "WITH", "THE", "AND", "FOR", "USA", "NEW", "SALE", "LINK"}
+# Black Friday season: November through Cyber Monday (Dec 1). Deals that say so get their own section.
+BF_SEASON = NOW.month == 11 or (NOW.month == 12 and NOW.day <= 1)
+BF_RE = re.compile(r"\b(pre|early)?[- ]?black[- ]?friday\b|\bBFCM\b|\bdoor ?busters?\b|\bcyber (monday|week)\b", re.I)
 CLIP_RE = re.compile(r"clip(pable|ped)?\s+(the\s+)?(\$\d+(\.\d+)?|\d+%)?\s*(off\s+)?coupon|clippable|"
                      r"coupon on (the )?(product )?page|on-?page coupon|check the coupon box", re.I)
 
@@ -1051,6 +1054,8 @@ def pick_super_deals(pool, cache, today, excl):
         text = d["title"] + " " + d["desc"] + " " + d.get("body", "")[:600]
         d["code"] = find_code(text)
         d["clip"] = bool(CLIP_RE.search(text))
+        d["bf"] = BF_SEASON and (bool(BF_RE.search(text))
+                                 or any(q in CONFIG.get("black_friday_queries", []) for q in d.get("queries", [])))
         d["name"] = clean_title(d["title"])
     good = [d for d in cands if d["price"] is not None and d.get("pct_off") and 50 <= d["pct_off"] <= 97
             and not is_expired(d, cache, recheck=False)[0]
@@ -1249,6 +1254,8 @@ def main():
              + CONFIG.get("media_queries", []) + CONFIG.get("art_queries", []) + CONFIG.get("produce_queries", [])
              + CONFIG.get("store_queries", [])
              if q not in CONFIG["slickdeals_queries"] and q not in CONFIG.get("super_deal_queries", [])]
+    if BF_SEASON:
+        extra += [q for q in CONFIG.get("black_friday_queries", []) if q not in CONFIG["slickdeals_queries"]]
     extra = list(dict.fromkeys(extra))
     got, ex_ok = search_all(extra + CONFIG.get("super_deal_queries", []))
     raw += got
@@ -1497,6 +1504,8 @@ def main():
                     or d.get("fire") or d["frontpage"] or not d["source"] == "Slickdeals")
         d["top_pick"] = (d["score"] >= CONFIG["top_pick_min_score"] and bool(interest)
                          and rank[sec] <= CONFIG.get("top_picks_per_section", 24))
+        # the Black Friday section has its own picks, so a good deal isn't hidden by its section's limit
+        d["bf_pick"] = d["bf"] and d["score"] >= CONFIG["top_pick_min_score"] and bool(interest)
         d["brand_kind"], d["brand"] = brand_check(d["title"])
 
     # prune history older than 120 days

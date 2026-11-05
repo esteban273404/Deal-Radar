@@ -182,6 +182,7 @@ form.add input { background: var(--surface-2); border: 1px solid var(--line); bo
 .badge.clip { background: var(--warn-bg); color: var(--warn); }
 .badge.pop { background: #fff1e6; color: #c2410c; }
 .badge.brand { background: #eef2ff; color: #3730a3; }
+.badge.bf { background: #18181b; color: #fff; }
 .badge { font-size: 11.5px; font-weight: 650; padding: 2px 7px; border-radius: 5px; background: var(--surface-2); color: var(--muted); }
 .badge.good { background: var(--good-bg); color: var(--good); }
 .badge.warn { background: var(--warn-bg); color: var(--warn); }
@@ -377,6 +378,7 @@ const DATA = /*__DEALS_JSON__*/null;
   }
   // line icons for the section tabs and headings (24px grid, drawn with currentColor)
   const ICONS = {   // flat white shapes; ".h" cut-outs are painted a shade darker than the tile
+    "Black Friday": '<path d="M2.6 3.9v6.3a2 2 0 0 0 .6 1.4l9.2 9.2a2 2 0 0 0 2.8 0l6.3-6.3a2 2 0 0 0 0-2.8L12.3 2.5a2 2 0 0 0-1.4-.6H4.6a2 2 0 0 0-2 2z"/><circle class="h" cx="7.6" cy="6.9" r="1.9"/><path class="h" d="m10.4 14.6 4.2-4.2 1.2 1.2-4.2 4.2z"/>',
     "All": '<rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/>',
     "Toys & Games": '<path d="M17.3 5H6.7a4 4 0 0 0-3.96 3.43L2 14.5a3 3 0 0 0 5.2 2.1L9 15h6l1.8 1.6a3 3 0 0 0 5.2-2.1l-.74-6.07A4 4 0 0 0 17.3 5z"/><path class="h" d="M7.2 8.6h1.6v1.8h1.8v1.6H8.8v1.8H7.2V12H5.4v-1.6h1.8z"/><circle class="h" cx="15.2" cy="12.2" r="1.3"/><circle class="h" cx="17.8" cy="9.8" r="1.3"/>',
     "Electronics": '<rect x="1.4" y="2.6" width="16.4" height="12" rx="1.9"/><path d="M.4 16.2h17v1.1a1.8 1.8 0 0 1-1.8 1.8H2.2a1.8 1.8 0 0 1-1.8-1.8z"/><rect class="h" x="15.6" y="9.4" width="8.2" height="13.4" rx="2.2"/><rect x="16.6" y="10.4" width="6.2" height="11.4" rx="1.5"/>',
@@ -389,7 +391,7 @@ const DATA = /*__DEALS_JSON__*/null;
     "Produce & Groceries": '<path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06z"/><path d="M11.2 6.8c-.1-2 .5-3.7 1.6-4.8l1 .9c-.9.9-1.3 2.2-1.2 3.9z"/><path d="M13.6 4.7c1.4-1.8 3.4-2.3 5-1.7-.5 1.8-2.6 3-5 1.7z"/>',
   };
   // one color per section, used for its icon tile, active tab and heading rule
-  const COLORS = { "All": "#334155", "Toys & Games": "#2563eb", "Electronics": "#7c3aed", "Books & Media": "#d97706",
+  const COLORS = { "All": "#334155", "Black Friday": "#18181b", "Toys & Games": "#2563eb", "Electronics": "#7c3aed", "Books & Media": "#d97706",
     "Art & Stationery": "#0891b2", "Apparel": "#dc2626", "Outdoors": "#16a34a", "Self Care": "#db2777", "Home & Goods": "#0d9488", "Produce & Groceries": "#65a30d" };
   const tint = (name) => `--c:${COLORS[name] || "#334155"}`;
   const icon = (name) => `<svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${ICONS[name] || ""}</svg>`;
@@ -405,6 +407,10 @@ const DATA = /*__DEALS_JSON__*/null;
     { name: "Produce & Groceries", cats: ["Produce", "Groceries"] },
   ];
   const secOf = (c) => (SECTIONS.find((s) => s.cats.includes(c)) || {}).name;
+  // Black Friday: deals from every section that say Black Friday / pre-Black Friday; only in November through Cyber Monday
+  const BF = { name: "Black Friday", bf: true, cats: SECTIONS.flatMap((s) => s.cats) };
+  const picked = (d, s) => !state.topOnly || d.top_pick || (!!(s && s.bf) && d.bf_pick);
+  const inSec = (s, d) => (s.bf ? d.bf && !!secOf(d.category) : s.cats.includes(d.category)) && picked(d, s);
 
   const data = DATA || { updated: null, sources: [], deals: [], default_watchlist: [] };
   // Drops & restocks: posts from the day before the last refresh, plus announcements of upcoming drops
@@ -422,6 +428,9 @@ const DATA = /*__DEALS_JSON__*/null;
     return upcoming ? Object.assign({}, d, { tag: "Upcoming" }) : null;   // announced drops only, not past ones
   }).filter(Boolean).sort((a, b) => new Date(b.posted || 0) - new Date(a.posted || 0)).slice(0, 9);
   const deals = data.deals.filter((d) => d.category !== "Drops & Restocks");
+  const bfDay = new Date(data.updated || Date.now());
+  const bfOn = (bfDay.getMonth() === 10 || (bfDay.getMonth() === 11 && bfDay.getDate() <= 1)) && data.deals.some((d) => d.bf);
+  const TABS = bfOn ? [BF, ...SECTIONS] : SECTIONS;
   $("drops-sec").hidden = false;
   $("drops").innerHTML = drops.length
     ? drops.map((d) => `<li><div class="meta"><span class="drop-tag${d.tag === "Upcoming" ? " up" : ""}">${d.tag}</span><span class="store">${esc(d.store === "Other" ? d.source : d.store)}</span><span>${ago(d.posted)}</span></div><a href="${esc(d.link)}" target="_blank" rel="noopener">${esc(d.title)}</a></li>`).join("")
@@ -570,6 +579,7 @@ const DATA = /*__DEALS_JSON__*/null;
     if (hits) b.push(`<span class="badge watch">On your watchlist</span>`);
     // real interest: Slickdeals' fire flag, or lots of people looking / voting
     if (d.fire || (d.views || 0) >= 8000 || d.thumbs >= 50) b.push(`<span class="badge pop">🔥 Popular</span>`);
+    if (d.bf) b.push(`<span class="badge bf">Black Friday</span>`);
     if (d.brand_kind === "name") b.push(`<span class="badge brand" title="${esc(d.brand)}">Name brand</span>`);
     if (d.lowest_seen) b.push(`<span class="badge good">Lowest price we've seen</span>`);
     if (d.msrp && d.price != null) {
@@ -619,14 +629,13 @@ const DATA = /*__DEALS_JSON__*/null;
   function base() {
     const q = norm(state.q).trim();
     return deals.filter((d) =>
-      (!state.topOnly || d.top_pick) &&
       (state.store === "All" || d.store === state.store) &&
       (!q || norm(d.title + " " + d.store).includes(q)));
   }
   function renderTabs() {
     const b = base();
-    $("secs").innerHTML = [{ name: "All" }, ...SECTIONS].map((s) => {
-      const n = s.cats ? b.filter((d) => s.cats.includes(d.category)).length : b.filter((d) => secOf(d.category)).length;
+    $("secs").innerHTML = [{ name: "All" }, ...TABS].map((s) => {
+      const n = s.cats ? b.filter((d) => inSec(s, d)).length : b.filter((d) => secOf(d.category) && picked(d)).length;
       return `<button type="button" class="sec" aria-pressed="${state.sec === s.name}" data-s="${esc(s.name)}" style="${tint(s.name)}"><span class="tab-ico">${icon(s.name)}</span>${esc(s.name === "All" ? "Overview" : s.name)} <span class="num">${n}</span></button>`;
     }).join("");
   }
@@ -667,7 +676,7 @@ const DATA = /*__DEALS_JSON__*/null;
   const DIGEST_N = 6;   // cards per section on the overview
   const slug = (t) => t.toLowerCase().replace(/[^a-z]+/g, "-");
   function block(sec, list, digest) {
-    const counts = sec.cats.map((c) => [c, list.filter((d) => d.category === c).length]);
+    const counts = sec.cats.map((c) => [c, list.filter((d) => d.category === c).length]).filter(([, n]) => n || !sec.bf);
     const breakdown = sec.cats.length > 1 ? counts.filter(([, n]) => n).map(([c, n]) => `${esc(c)} ${n}`).join(" · ") : "";
     const chips = !digest && sec.cats.length > 1
       ? `<div class="cats" role="toolbar" aria-label="${esc(sec.name)} categories">${[["All", "All " + sec.name, list.length], ...counts.map(([c, n]) => [c, c, n])]
@@ -692,20 +701,20 @@ const DATA = /*__DEALS_JSON__*/null;
     const b = base().sort(SORTS[state.sort]);
     let html, n;
     if (state.q.trim()) {
-      const list = b.filter((d) => secOf(d.category));
+      const list = b.filter((d) => secOf(d.category) && picked(d));
       n = list.length;
       html = `<section class="block"><div class="block-head"><div><h2 class="block-title">Results for “${esc(state.q.trim())}”</h2>
         <p class="block-meta">${n} ${n === 1 ? "deal" : "deals"} across all sections</p></div></div>
         ${n ? `<div class="grid">${list.map(card).join("")}</div>` : `<p class="empty">Nothing matches. Try a shorter search or turn off “Top picks only”.</p>`}</section>`;
     } else if (state.sec === "All") {
-      n = b.filter((d) => secOf(d.category)).length;
-      html = SECTIONS.map((s) => {
-        const list = b.filter((d) => s.cats.includes(d.category));
+      n = b.filter((d) => secOf(d.category) && picked(d)).length;
+      html = TABS.map((s) => {
+        const list = b.filter((d) => inSec(s, d));
         return list.length || s.name === "Toys & Games" ? block(s, list, true) : "";
       }).join("");
     } else {
-      const sec = SECTIONS.find((s) => s.name === state.sec);
-      const list = b.filter((d) => sec.cats.includes(d.category));
+      const sec = TABS.find((s) => s.name === state.sec);
+      const list = b.filter((d) => inSec(sec, d));
       n = list.filter((d) => state.cat === "All" || d.category === state.cat).length;
       html = block(sec, list, false);
     }

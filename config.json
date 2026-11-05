@@ -1002,5 +1002,22 @@
     "Ziploc"
   ],
   "_worth_comment": "Top picks need real interest: at least this many Slickdeals views, or enough votes, a fire flag, or a curated source.",
-  "top_pick_min_views": 2500
+  "top_pick_min_views": 2500,
+  "black_friday_queries": [
+    "black friday",
+    "early black friday",
+    "pre black friday",
+    "black friday doorbuster",
+    "black friday early access",
+    "best buy black friday",
+    "target black friday",
+    "walmart black friday",
+    "amazon black friday",
+    "costco black friday",
+    "lego black friday",
+    "nike black friday",
+    "macys black friday",
+    "home depot black friday",
+    "ulta black friday"
+  ]
 }
