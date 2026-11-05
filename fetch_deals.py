@@ -1505,7 +1505,7 @@ def main():
         d["top_pick"] = (d["score"] >= CONFIG["top_pick_min_score"] and bool(interest)
                          and rank[sec] <= CONFIG.get("top_picks_per_section", 24))
         # the Black Friday section has its own picks, so a good deal isn't hidden by its section's limit
-        d["bf_pick"] = d["bf"] and d["score"] >= CONFIG["top_pick_min_score"] and bool(interest)
+        d["bf_pick"] = bool(d.get("bf")) and d["score"] >= CONFIG["top_pick_min_score"] and bool(interest)
         d["brand_kind"], d["brand"] = brand_check(d["title"])
 
     # prune history older than 120 days
