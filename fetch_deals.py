@@ -1463,6 +1463,8 @@ def main():
         text = d["title"] + " " + d["desc"] + " " + d.get("body", "")[:600]
         d["code"] = find_code(text)
         d["clip"] = bool(CLIP_RE.search(text))
+        d["bf"] = BF_SEASON and (bool(BF_RE.search(text))
+                                 or any(q in CONFIG.get("black_friday_queries", []) for q in d.get("queries", [])))
         d["name"] = clean_title(d["title"])
     log_query_yield(deals)
     # 30-day price trail per product (lowest price seen each day, any store), for the card's mini chart
